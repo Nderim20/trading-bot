@@ -9,7 +9,7 @@ import feedparser
 import requests
 from dotenv import load_dotenv
 from flask import Flask, abort, jsonify, request
-
+sent_titles = set()
 load_dotenv()
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -136,11 +136,27 @@ def summarize(entry) -> Optional[ArticleSignal]:
         return None
     return ArticleSignal(title, link, source or "RSS", published or "date inconnue", score, classify_bias(score), symbols, reasons[:8], summary[:280] if summary else "Résumé indisponible")
 
-def should_alert(signal: ArticleSignal) -> bool:
-    if signal.bias == "NEUTRAL" and abs(signal.score) < 4:
+def should_alert(signal, grok=None):
+    # base score
+    if signal.score < 6:
         return False
-    if not signal.symbol_hits and abs(signal.score) < 6:
-        return False
+
+    # si mode ultra important
+    if os.getenv("ULTRA_IMPORTANT_ONLY", "true") == "true":
+        if not grok:
+            return False
+
+        try:
+            importance = int(grok.get("importance", 0))
+        except:
+            importance = 0
+
+        if importance < 8:
+            return False
+
+        if grok.get("action", "ATTENDRE") == "ATTENDRE":
+            return False
+
     return True
 
 def telegram_api_url(method: str) -> str:
@@ -244,8 +260,14 @@ def news_loop() -> None:
                     if article_seen(article_id):
                         continue
                     mark_seen(article_id)
-                    if should_alert(signal):
-                        grok = analyze_with_grok(signal)
+                    grok = analyze_with_grok(signal)
+
+if not should_alert(signal, grok):
+    continue
+if signal.title in sent_titles:
+    continue
+
+sent_titles.add(signal.title)                        grok = analyze_with_grok(signal)
                         send_telegram_message(format_signal(signal, grok))
         except Exception as exc:
             logger.exception("Erreur pendant le scan des news: %s", exc)
