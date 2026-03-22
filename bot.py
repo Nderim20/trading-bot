@@ -267,7 +267,8 @@ if not should_alert(signal, grok):
 if signal.title in sent_titles:
     continue
 
-sent_titles.add(signal.title)                        grok = analyze_with_grok(signal)
+        sent_titles.add(signal.title)                        
+        grok = analyze_with_grok(signal)
                         send_telegram_message(format_signal(signal, grok))
         except Exception as exc:
             logger.exception("Erreur pendant le scan des news: %s", exc)
