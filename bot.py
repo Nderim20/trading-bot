@@ -272,10 +272,10 @@ def news_loop() -> None:
                     sent_titles.add(signal.title)                        
                     send_telegram_message(format_signal(signal, grok))
         
-           except Exception as exc:
-               logger.exception("Erreur pendant le scan des news: %s", exc)
+        except Exception as exc:
+            logger.exception("Erreur pendant le scan des news: %s", exc)
         
-           time.sleep(POLL_SECONDS)
+        time.sleep(POLL_SECONDS)
 
 @app.get("/health")
 def health():
