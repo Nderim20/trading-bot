@@ -155,9 +155,9 @@ def should_alert(signal, grok=None):
             return False
 
         if grok and grok.get("action", "ATTENDRE") == "ATTENDRE":
-    return False
+            return False
 
-    return True
+            return True
 
 def telegram_api_url(method: str) -> str:
     return f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/{method}"
