@@ -154,8 +154,8 @@ def should_alert(signal, grok=None):
         if importance < 8:
             return False
 
-        if grok.get("action", "ATTENDRE") == "ATTENDRE":
-            return False
+        if grok and grok.get("action", "ATTENDRE") == "ATTENDRE":
+    return False
 
     return True
 
