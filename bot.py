@@ -281,10 +281,10 @@ def news_loop() -> None:
         if test_pairs:
              send_telegram_message(f"📰 TEST RSS OK: {test_pairs[0].title}")
     
-     while True:
-        try:
-            for feed_url in RSS_FEEDS:
-                for signal in fetch_feed(feed_url):
+ while True:
+     try:
+         for feed_url in feeds:
+             for signal in fetch_feed(feed_url):
                     article_id = make_article_id(signal.link, signal.title)
                     if article_seen(article_id):
                         continue
