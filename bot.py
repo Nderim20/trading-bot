@@ -290,17 +290,17 @@ def news_loop() -> None:
                 if article_seen(article_id):
                     continue
                     
-                    mark_seen(article_id)
-                    grok = analyze_with_grok(signal)
+                mark_seen(article_id)
+                grok = analyze_with_grok(signal)
 
-                    if not should_alert(signal, grok):
-                        continue
+                if not should_alert(signal, grok):
+                    continue
                     
-                    if signal.title in sent_titles:
-                        continue
+                if signal.title in sent_titles:
+                    continue
 
-                    sent_titles.add(signal.title)                        
-                    send_telegram_message(format_signal(signal, grok))
+                sent_titles.add(signal.title)                        
+                send_telegram_message(format_signal(signal, grok))
         
         except Exception as exc:
             logger.exception("Erreur pendant le scan des news: %s", exc)
