@@ -271,7 +271,8 @@ def fetch_feed(url: str) -> List[ArticleSignal]:
 
 def news_loop() -> None:
     logger.info("Boucle news démarrée. %s flux RSS surveillés.", len(RSS_FEEDS))
-     while True:
+    send_telegram_message("🧪 TEST NEWS BOT OK")
+    while True:
         try:
             for feed_url in RSS_FEEDS:
                 for signal in fetch_feed(feed_url):
