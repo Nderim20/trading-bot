@@ -12,6 +12,16 @@ from flask import Flask, abort, jsonify, request
 sent_titles = set()
 load_dotenv()
 
+POLITICAL_KEYWORDS = [
+    "fed", "federal reserve", "powell", "interest rate", "rates",
+    "inflation", "cpi", "ppi", "jobs report", "unemployment",
+    "sec", "regulation", "regulatory", "etf", "bitcoin etf",
+    "trump", "biden", "election", "white house", "congress",
+    "senate", "treasury", "ecb", "bank of england", "boj",
+    "war", "iran", "china", "russia", "ukraine", "tariff",
+    "sanctions", "recession", "gdp", "macro"
+]
+
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 POLL_SECONDS = int(os.getenv("POLL_SECONDS", "180"))
 DB_PATH = os.getenv("DB_PATH", "seen_articles.db")
@@ -120,6 +130,10 @@ def classify_bias(score: int) -> str:
     if score <= -5: return "BEARISH"
     return "NEUTRAL"
 
+def has_political_signal(text: str) -> bool:
+    text = text.lower()
+    return any(keyword in text for keyword in POLITICAL_KEYWORDS)
+
 def summarize(entry) -> Optional[ArticleSignal]:
     title = clean_text(getattr(entry, "title", "Sans titre"))
     link = getattr(entry, "link", "")
@@ -129,6 +143,11 @@ def summarize(entry) -> Optional[ArticleSignal]:
     combined = f"{title}. {summary}"
     symbols = detect_symbols(combined)
     score, reasons = score_text(combined)
+
+    if has_political_signal(combined):
+        score += 3
+        reasons.append("signal politique / macro détecté")
+   
     if symbols:
         score += min(len(symbols), 3)
         reasons.append("symbole surveillé détecté")
