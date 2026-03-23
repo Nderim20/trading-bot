@@ -273,9 +273,13 @@ def news_loop() -> None:
     logger.info("Boucle news démarrée. %s flux RSS surveillés.", len(RSS_FEEDS))
     send_telegram_message("🧪 TEST NEWS BOT OK")
   
-    test_pairs = fetch_feed(RSS_FEEDS[0]) if RSS_FEEDS else []
-    if test_pairs:
-    send_telegram_message(f"📰 TEST RSS OK: {test_pairs[0].title}")
+    feeds = RSS_FEEDS.split(",")
+
+    if feeds:
+        test_pairs = fetch_feed(feeds[0])
+   
+        if test_pairs:
+             send_telegram_message(f"📰 TEST RSS OK: {test_pairs[0].title}")
     
      while True:
         try:
