@@ -274,8 +274,8 @@ def news_loop() -> None:
   
     feeds = RSS_FEEDS.split(",")
             
-    while True:
-        try:
+ while True:
+    try:
         for feed_url in feeds:
             for signal in fetch_feed(feed_url):
                 article_id = make_article_id(signal.link, signal.title)
