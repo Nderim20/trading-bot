@@ -271,18 +271,11 @@ def fetch_feed(url: str) -> List[ArticleSignal]:
 
 def news_loop() -> None:
     logger.info("Boucle news démarrée. %s flux RSS surveillés.", len(RSS_FEEDS))
-    send_telegram_message("🧪 TEST NEWS BOT OK")
   
     feeds = RSS_FEEDS.split(",")
-
-    if feeds:
-        test_pairs = fetch_feed(feeds[0])
-   
-        if test_pairs:
-             send_telegram_message(f"📰 TEST RSS OK: {test_pairs[0].title}")
-    
- while True:
-    try:
+            
+    while True:
+        try:
         for feed_url in feeds:
             for signal in fetch_feed(feed_url):
                 article_id = make_article_id(signal.link, signal.title)
