@@ -270,34 +270,36 @@ def fetch_feed(url: str) -> List[ArticleSignal]:
     return out
 
 def news_loop() -> None:
-    logger.info("Boucle news démarrée. %s flux RSS surveillés.", len(RSS_FEEDS))
-  
-    feeds = RSS_FEEDS.split(",")
-            
+    feeds = [f.strip() for f in RSS_FEEDS.split(",") if f.strip()]
+    logger.info("Boucle news démarrée. %s flux RSS surveillés.", len(feeds))
+
     while True:
         try:
-        for feed_url in feeds:
-            for signal in fetch_feed(feed_url):
-                article_id = make_article_id(signal.link, signal.title)
+            for feed_url in feeds:
+                for signal in fetch_feed(feed_url):
+                    article_id = make_article_id(signal.link, signal.title)
 
-                if article_seen(article_id):
-                    continue
-                    
-                mark_seen(article_id)
-                grok = analyze_with_grok(signal)
+                    if article_seen(article_id):
+                        continue
 
-                if not should_alert(signal, grok):
-                    continue
-                    
-                if signal.title in sent_titles:
-                    continue
+                    mark_seen(article_id)
 
-                sent_titles.add(signal.title)                        
-                send_telegram_message(format_signal(signal, grok))
-        
+                    grok = None
+                    if ENABLE_GROK:
+                        grok = analyze_with_grok(signal)
+
+                    if not should_alert(signal, grok):
+                        continue
+
+                    if signal.title in sent_titles:
+                        continue
+
+                    sent_titles.add(signal.title)
+                    send_telegram_message(format_signal(signal, grok))
+
         except Exception as exc:
             logger.exception("Erreur pendant le scan des news: %s", exc)
-        
+
         time.sleep(POLL_SECONDS)
 
 @app.get("/health")
